@@ -30,6 +30,33 @@ uci set bandix.dns.enabled='1'
 uci commit bandix
 /etc/init.d/bandix restart
 
+# 写入 IPv6 修复 hotplug 脚本
+cat > /etc/hotplug.d/iface/99-odhcpd-restart << 'HOTPLUG'
+#!/bin/sh
+[ "$ACTION" = "ifup" ] || exit 0
+[ "$INTERFACE" = "2_1_2v6" ] || exit 0
+logger -t hotplug-ipv6 "2_1_2v6 up, waiting for prefix delegation..."
+
+for i in $(seq 1 30); do
+    sleep 2
+    HAS_PREFIX=$(ubus call network.interface.2_1_2v6 status 2>/dev/null \
+        | jsonfilter -e '@["ipv6-prefix"][0].address' 2>/dev/null)
+    logger -t hotplug-ipv6 "attempt $i: prefix=$HAS_PREFIX"
+    if [ -n "$HAS_PREFIX" ]; then
+        logger -t hotplug-ipv6 "got prefix $HAS_PREFIX, fixing routes and restarting odhcpd"
+        service odhcpd restart
+        sleep 2
+        ip -6 route del unreachable "${HAS_PREFIX}/64" 2>/dev/null && \
+            logger -t hotplug-ipv6 "removed unreachable route for ${HAS_PREFIX}/64"
+        exit 0
+    fi
+done
+
+logger -t hotplug-ipv6 "timeout, restarting odhcpd anyway"
+service odhcpd restart
+HOTPLUG
+chmod +x /etc/hotplug.d/iface/99-odhcpd-restart
+
 uci -q set zz_config.@status[0].first_boot=0
 uci commit zz_config
 
