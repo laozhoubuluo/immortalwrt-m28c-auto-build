@@ -11,7 +11,7 @@
 ## 说明
 
 1. 第一次使用建议通过 [balenaEtcher](https://etcher.balena.io/) 直接刷入 TF 卡
-2. [Actions](https://github.com/zzzz0317/immortalwrt-m28c-auto-build/blob/main/.github/workflows/build.yml) ~~在北京时间每周五凌晨2点自动拉取 [Immortalwrt](https://github.com/immortalwrt/immortalwrt) 代码编译并发布~~，平时可能会不定期手动触发更新
+2. [Actions](https://github.com/zzzz0317/immortalwrt-m28c-auto-build/blob/main/.github/workflows/build.yml) 在北京时间每周五凌晨2点自动拉取 [Immortalwrt](https://github.com/immortalwrt/immortalwrt) 代码编译并发布，平时可能会不定期手动触发更新
 3. 默认 Wi-Fi SSID: `zzM28C`，密码: `m28cm28c`
 4. 默认 LAN 接口地址: `192.168.1.1`
 5. 默认 root 密码: `password`，后续可能会变更
